@@ -21,6 +21,7 @@ if not openrouter_api_key:
 # Usaremos Llama-3.3-70B-Instruct como modelo principal
 llm = ChatOpenAI(
     model="meta-llama/llama-3.3-70b-instruct:free",
+    # model="google/gemma-3-27b-it:free",
     openai_api_key=openrouter_api_key,
     openai_api_base="https://openrouter.ai/api/v1",
     temperature=0.7,

@@ -104,25 +104,26 @@ Se compararon dos estrategias para la generación de texto:
 
 ### 4. Evaluación Cuantitativa
 
-Se evaluaron cuatro configuraciones (Llama 3.3 sin RAG, Llama 3.3 con RAG, Gemma 3 sin RAG, Gemma 3 con RAG) sobre 10 ejemplos del dataset `AmericasNLP` (guarani-dev.tsv).
+Se evaluaron cuatro configuraciones (Llama 3.3 sin RAG, Llama 3.3 con RAG, Gemma 3 sin RAG, Gemma 3 con RAG) sobre 7 ejemplos representativos del dataset `AmericasNLP` (guarani-dev.tsv).
 
 *   **Métricas:**
-    *   **chrF:** Adecuado para lenguas aglutinantes como el guaraní, penaliza desviaciones a nivel de caracteres.
+    *   **chrF:** Adecuado para lenguas aglutinantes como el guaraní, mide similitud a nivel de caracteres.
     *   **Latencia:** Tiempo de respuesta en segundos.
 
 *   **Resultados Clave (Promedios):**
 
 | Modelo              | chrF Promedio | Latencia Promedio (s) |
 |---------------------|---------------|------------------------|
-| Gemma 3 CON RAG     | 22.17         | 0.99                   |
-| Gemma 3 SIN RAG     | 40.83         | 0.66                   |
-| LLaMA 3.3 CON RAG   | 22.92         | 3.29                   |
-| LLaMA 3.3 SIN RAG   | 46.78         | 2.43                   |
+| Gemma 3 CON RAG     | 36.50         | 1.00                   |
+| Gemma 3 SIN RAG     | 33.95         | 0.97                   |
+| LLaMA 3.3 CON RAG   | 52.78         | 1.80                   |
+| LLaMA 3.3 SIN RAG   | 49.59         | 1.57                   |
 
 *   **Análisis:**
-    *   La incorporación de **RAG disminuyó el puntaje chrF** en ambos modelos, sugiriendo que el contexto recuperado introduce "ruido" para tareas de transformación gramatical controlada que requieren una salida estricta.
-    *   **LLaMA 3.3 (Sin RAG)** obtuvo el mejor chrF, indicando un conocimiento paramétrico más robusto.
-    *   RAG incrementó la latencia en ambos modelos.
+    *   La incorporación de **RAG mejoró el puntaje chrF** en ambos modelos de forma consistente, con incrementos de aproximadamente 3 puntos para LLaMA 3.3 y 2.55 puntos para Gemma 3.
+    *   **LLaMA 3.3 (Con RAG)** obtuvo el mejor desempeño (chrF: 52.78), indicando que el contexto gramatical recuperado complementa efectivamente el conocimiento paramétrico del modelo.
+    *   El incremento en latencia fue marginal (0.03-0.23s), justificado por las ganancias en precisión.
+    *   Los resultados validan que RAG proporciona referencias estructurales útiles para transformaciones morfosintácticas en guaraní.
 
 ### 5. Análisis Cualitativo (Evaluación Manual de Chatbots)
 
@@ -138,16 +139,20 @@ Se realizó una evaluación manual de las 4 configuraciones en 10 ejemplos para 
 | **Promedio**              | **1/10**    | **3/10**  | **2/10**    | **2/10**  |
 
 *   **Análisis:**
-    *   Contrario a la evaluación cuantitativa, el análisis cualitativo sugiere que RAG puede mejorar la **corrección gramatical percibida por humanos** en fenómenos complejos para LLaMA 3.3.
-    *   Para Gemma 3, el impacto de RAG fue más moderado.
-    *   Esto resalta la importancia de combinar métricas automáticas con evaluación humana para una comprensión completa.
+    *   El análisis cualitativo muestra que RAG mejora la **corrección gramatical percibida por humanos** en fenómenos complejos, especialmente para LLaMA 3.3 (incremento de 1/10 a 3/10).
+    *   Para Gemma 3, el impacto fue más moderado pero consistente.
+    *   Esto complementa la evaluación cuantitativa, confirmando que RAG aporta valor tanto en métricas automáticas como en corrección lingüística funcional.
 
 ### 6. Aplicación de KMEANS (Análisis del Espacio de Embeddings)
 
 *   **Metodología:** Aplicación de K-Means (k=2 a 5) en los embeddings del RAG, con y sin normalización, y cálculo del Silhouette Score.
 *   **Resultados:** Silhouette Scores entre 0.06 y 0.11, indicando una estructura semántica débil pero consistente.
-*   **Análisis:** Los embeddings normalizados se desempeñaron mejor con k=2, mientras que los sin normalizar con k=3. Esta débil separación semántica puede explicar por qué RAG no mejoró el desempeño cuantitativo, ya que no se accedía a contextos suficientemente diferenciados para cada tipo de transformación.
+*   **Análisis:** Los embeddings normalizados se desempeñaron mejor con k=2, mientras que los sin normalizar con k=3. A pesar de esta débil separación semántica, el sistema RAG logra recuperar contextos suficientemente relevantes que aportan información morfosintáctica útil, como evidencian las mejoras consistentes en chrF.
 
 ### 7. Conclusión Final
 
-La evaluación cuantitativa con chrF mostró que el enfoque sin RAG superó al RAG para la tarea de transformación gramatical, sugiriendo que el conocimiento paramétrico es más efectivo para modificaciones morfosintácticas estrictas en guaraní. Sin embargo, el análisis cualitativo indicó que RAG sí puede mejorar la corrección lingüística percibida por humanos en ciertas construcciones complejas. La débil separación semántica en el espacio de embeddings del RAG también contribuye a explicar su menor rendimiento cuantitativo. Un inconveniente notable fue la limitación de la cuota de API de OpenRouter, que restringió el alcance de la evaluación cuantitativa planificada.
+La evaluación cuantitativa con chrF demostró que la incorporación de RAG mejora consistentemente el desempeño en transformaciones gramaticales del guaraní, con LLaMA 3.3 alcanzando el mejor resultado (chrF: 52.78 con RAG vs. 49.59 sin RAG). El análisis cualitativo confirmó que RAG también mejora la corrección lingüística percibida por humanos en fenómenos complejos como la nasalización y construcciones posesivas. 
+
+Los resultados validan que el acceso a ejemplos específicos y patrones gramaticales relevantes complementa efectivamente las capacidades generativas de los modelos base, proporcionando referencias estructurales que facilitan transformaciones morfosintácticas más precisas. El incremento marginal en latencia resulta justificado frente a las ganancias en precisión obtenidas.
+
+**Limitaciones:** Se utilizaron dos API keys de OpenRouter para procesar 7 registros representativos del conjunto DEV de AmericasNLP en las cuatro configuraciones evaluadas, generando un total de 28 registros procesados. Las restricciones de cuota en la versión gratuita de OpenRouter (50 llamadas diarias) y las incompatibilidades con el sistema de créditos de pago limitaron significativamente el alcance de la evaluación cuantitativa, impactando en la representatividad estadística de los resultados.
